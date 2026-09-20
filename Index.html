@@ -259,7 +259,6 @@ button {
 
 /* الهاتف */
 @media (max-width: 650px) {
-
     body {
         padding: 8px;
     }
@@ -299,7 +298,6 @@ button {
     </div>
 
     <div class="stats">
-
         <div class="stat">
             عدد السيارات
             <strong id="carCount">0</strong>
@@ -309,777 +307,334 @@ button {
             إجمالي عمليات الصيانة
             <strong id="serviceCount">0</strong>
         </div>
-
     </div>
 
     <div class="search-box">
-
         <input
             type="text"
             id="search"
             placeholder="🔍 ابحث باسم صاحب السيارة أو نوع السيارة..."
             oninput="displayCars()"
         >
-
     </div>
 
     <div id="carList" class="car-list"></div>
 
 </div>
 
-
 <!-- نافذة إضافة / تعديل سيارة -->
-
 <div id="carModal" class="modal">
-
     <div class="modal-content">
-
         <h2 id="modalTitle">➕ إضافة سيارة</h2>
 
         <div class="form-group">
-
             <label>اسم صاحب السيارة</label>
-
-            <input
-                type="text"
-                id="ownerName"
-                placeholder="مثال: محمد"
-            >
-
+            <input type="text" id="ownerName" placeholder="مثال: محمد">
         </div>
 
         <div class="form-group">
-
             <label>اسم / نوع السيارة</label>
-
-            <input
-                type="text"
-                id="carName"
-                placeholder="مثال: Peugeot 208"
-            >
-
+            <input type="text" id="carName" placeholder="مثال: Peugeot 208">
         </div>
 
         <div class="form-group">
-
             <label>سنة السيارة</label>
-
-            <input
-                type="number"
-                id="carYear"
-                placeholder="مثال: 2018"
-            >
-
+            <input type="number" id="carYear" placeholder="مثال: 2018">
         </div>
 
         <div class="form-buttons">
-
-            <button
-                class="save-button"
-                onclick="saveCar()"
-            >
-                حفظ
-            </button>
-
-            <button
-                class="cancel-button"
-                onclick="closeCarModal()"
-            >
-                إلغاء
-            </button>
-
+            <button class="save-button" onclick="saveCar()">حفظ</button>
+            <button class="cancel-button" onclick="closeCarModal()">إلغاء</button>
         </div>
-
     </div>
-
 </div>
 
-
 <!-- نافذة إضافة صيانة -->
-
 <div id="serviceModal" class="modal">
-
     <div class="modal-content">
-
         <h2>🔧 إضافة صيانة</h2>
 
         <div class="form-group">
-
             <label>تاريخ الصيانة</label>
-
-            <input
-                type="date"
-                id="serviceDate"
-            >
-
+            <input type="date" id="serviceDate">
         </div>
 
         <div class="form-group">
-
             <label>ممشى السيارة (كم)</label>
-
-            <input
-                type="number"
-                id="serviceKm"
-                placeholder="مثال: 125000"
-            >
-
+            <input type="number" id="serviceKm" placeholder="مثال: 125000">
         </div>
 
         <div class="form-group">
-
             <label>ماذا تم إصلاحه؟</label>
-
-            <textarea
-                id="serviceDetails"
-                placeholder="مثال: تغيير الزيت والبواجي..."
-            ></textarea>
-
+            <textarea id="serviceDetails" placeholder="مثال: تغيير الزيت والبواجي..."></textarea>
         </div>
 
         <div class="form-buttons">
-
-            <button
-                class="save-button"
-                onclick="saveService()"
-            >
-                حفظ الصيانة
-            </button>
-
-            <button
-                class="cancel-button"
-                onclick="closeServiceModal()"
-            >
-                إلغاء
-            </button>
-
+            <button class="save-button" onclick="saveService()">حفظ الصيانة</button>
+            <button class="cancel-button" onclick="closeServiceModal()">إلغاء</button>
         </div>
-
     </div>
-
 </div>
 
-
 <script>
-
-/* =========================
-   البيانات
-========================= */
-
-let cars =
-    JSON.parse(localStorage.getItem("mechanicCars")) || [];
-
+let cars = JSON.parse(localStorage.getItem("mechanicCars")) || [];
 let editingCarId = null;
 let selectedCarId = null;
 
-
-/* =========================
-   حفظ البيانات
-========================= */
-
 function saveData() {
-
-    localStorage.setItem(
-        "mechanicCars",
-        JSON.stringify(cars)
-    );
-
+    localStorage.setItem("mechanicCars", JSON.stringify(cars));
 }
 
-
-/* =========================
-   عرض السيارات
-========================= */
-
 function displayCars() {
-
-    const list =
-        document.getElementById("carList");
-
-    const search =
-        document.getElementById("search")
-        .value
-        .toLowerCase()
-        .trim();
+    const list = document.getElementById("carList");
+    const search = document.getElementById("search").value.toLowerCase().trim();
 
     list.innerHTML = "";
 
     const filteredCars = cars.filter(car => {
-
         return (
             car.owner.toLowerCase().includes(search) ||
             car.name.toLowerCase().includes(search)
         );
-
     });
 
-
     if (filteredCars.length === 0) {
-
         list.innerHTML = `
             <div class="empty">
                 لا توجد سيارات مطابقة للبحث.
             </div>
         `;
-
         updateStats();
         return;
     }
 
-
     filteredCars.forEach(car => {
-
         let lastService = null;
 
         if (car.services && car.services.length > 0) {
-
-            lastService =
-                [...car.services].sort(
-                    (a,b) =>
-                    new Date(b.date) -
-                    new Date(a.date)
-                )[0];
-
+            lastService = [...car.services].sort(
+                (a, b) => new Date(b.date) - new Date(a.date)
+            )[0];
         }
 
-
-        const card =
-            document.createElement("div");
-
+        const card = document.createElement("div");
         card.className = "car-card";
 
-
         card.innerHTML = `
-
             <div class="car-header">
-
                 <div>
-
-                    <div class="car-name">
-                        🚗 ${escapeHTML(car.name)}
-                    </div>
-
-                    <div class="owner">
-                        👤 ${escapeHTML(car.owner)}
-                    </div>
-
+                    <div class="car-name">🚗 ${escapeHTML(car.name)}</div>
+                    <div class="owner">👤 ${escapeHTML(car.owner)}</div>
                 </div>
-
                 <div>
-                    <button
-                        class="edit-button"
-                        onclick="editCar(${car.id})"
-                    >
-                        ✏️ تعديل
-                    </button>
+                    <button class="edit-button" onclick="editCar(${car.id})">✏️ تعديل</button>
                 </div>
-
             </div>
-
 
             <div class="info">
-
                 <div class="info-box">
                     <small>سنة السيارة</small>
-                    <strong>
-                        ${car.year || "-"}
-                    </strong>
+                    <strong>${car.year || "-"}</strong>
                 </div>
-
                 <div class="info-box">
                     <small>آخر صيانة</small>
-                    <strong>
-                        ${
-                            lastService
-                            ? formatDate(lastService.date)
-                            : "-"
-                        }
-                    </strong>
+                    <strong>${lastService ? formatDate(lastService.date) : "-"}</strong>
                 </div>
-
                 <div class="info-box">
                     <small>آخر ممشى</small>
-                    <strong>
-                        ${
-                            lastService
-                            ? Number(lastService.km).toLocaleString()
-                              + " كم"
-                            : "-"
-                        }
-                    </strong>
+                    <strong>${lastService ? Number(lastService.km).toLocaleString() + " كم" : "-"}</strong>
                 </div>
-
             </div>
-
 
             ${
                 lastService
-
-                ?
-
-                `
+                ? `
                 <div class="repair">
-
-                    <div class="repair-title">
-                        🔧 آخر إصلاح
-                    </div>
-
-                    <div>
-                        ${escapeHTML(lastService.details)}
-                    </div>
-
+                    <div class="repair-title">🔧 آخر إصلاح</div>
+                    <div>${escapeHTML(lastService.details)}</div>
                 </div>
                 `
-
-                :
-
-                `
+                : `
                 <div class="repair">
                     لم يتم تسجيل أي صيانة بعد.
                 </div>
                 `
             }
 
-
             <div class="actions">
-
-                <button
-                    class="service-button"
-                    onclick="openServiceModal(${car.id})"
-                >
-                    🔧 إضافة صيانة
-                </button>
-
-                <button
-                    class="edit-button"
-                    onclick="viewHistory(${car.id})"
-                >
-                    📋 سجل الصيانة
-                </button>
-
-                <button
-                    class="delete-button"
-                    onclick="deleteCar(${car.id})"
-                >
-                    🗑️ حذف
-                </button>
-
+                <button class="service-button" onclick="openServiceModal(${car.id})">🔧 إضافة صيانة</button>
+                <button class="edit-button" onclick="viewHistory(${car.id})">📋 سجل الصيانة</button>
+                <button class="delete-button" onclick="deleteCar(${car.id})">🗑️ حذف</button>
             </div>
-
         `;
 
         list.appendChild(card);
-
     });
-
 
     updateStats();
-
 }
-
-
-/* =========================
-   الإحصائيات
-========================= */
 
 function updateStats() {
-
-    document.getElementById("carCount")
-        .textContent = cars.length;
-
+    document.getElementById("carCount").textContent = cars.length;
 
     let total = 0;
-
     cars.forEach(car => {
-
-        total +=
-            car.services
-            ? car.services.length
-            : 0;
-
+        total += car.services ? car.services.length : 0;
     });
 
-
-    document.getElementById("serviceCount")
-        .textContent = total;
-
+    document.getElementById("serviceCount").textContent = total;
 }
-
-
-/* =========================
-   إضافة سيارة
-========================= */
 
 function openCarModal() {
-
     editingCarId = null;
-
-    document.getElementById("modalTitle")
-        .textContent = "➕ إضافة سيارة";
-
-    document.getElementById("ownerName")
-        .value = "";
-
-    document.getElementById("carName")
-        .value = "";
-
-    document.getElementById("carYear")
-        .value = "";
-
-    document.getElementById("carModal")
-        .style.display = "block";
-
+    document.getElementById("modalTitle").textContent = "➕ إضافة سيارة";
+    document.getElementById("ownerName").value = "";
+    document.getElementById("carName").value = "";
+    document.getElementById("carYear").value = "";
+    document.getElementById("carModal").style.display = "block";
 }
 
-
-/* =========================
-   تعديل سيارة
-========================= */
-
 function editCar(id) {
-
-    const car =
-        cars.find(c => c.id === id);
-
+    const car = cars.find(c => c.id === id);
     if (!car) return;
 
     editingCarId = id;
-
-    document.getElementById("modalTitle")
-        .textContent = "✏️ تعديل السيارة";
-
-    document.getElementById("ownerName")
-        .value = car.owner;
-
-    document.getElementById("carName")
-        .value = car.name;
-
-    document.getElementById("carYear")
-        .value = car.year;
-
-    document.getElementById("carModal")
-        .style.display = "block";
-
+    document.getElementById("modalTitle").textContent = "✏️ تعديل السيارة";
+    document.getElementById("ownerName").value = car.owner;
+    document.getElementById("carName").value = car.name;
+    document.getElementById("carYear").value = car.year;
+    document.getElementById("carModal").style.display = "block";
 }
 
-
-/* =========================
-   حفظ السيارة
-========================= */
-
 function saveCar() {
-
-    const owner =
-        document.getElementById("ownerName")
-        .value.trim();
-
-    const name =
-        document.getElementById("carName")
-        .value.trim();
-
-    const year =
-        document.getElementById("carYear")
-        .value.trim();
-
+    const owner = document.getElementById("ownerName").value.trim();
+    const name = document.getElementById("carName").value.trim();
+    const year = document.getElementById("carYear").value.trim();
 
     if (!owner || !name) {
-
         alert("يرجى كتابة اسم صاحب السيارة ونوع السيارة.");
-
         return;
     }
 
-
     if (editingCarId) {
-
-        const car =
-            cars.find(c =>
-                c.id === editingCarId
-            );
-
+        const car = cars.find(c => c.id === editingCarId);
         car.owner = owner;
         car.name = name;
         car.year = year;
-
     } else {
-
         cars.push({
-
             id: Date.now(),
-
             owner: owner,
-
             name: name,
-
             year: year,
-
             services: []
-
         });
-
     }
 
-
     saveData();
-
     closeCarModal();
-
     displayCars();
-
 }
-
-
-/* =========================
-   حذف سيارة
-========================= */
 
 function deleteCar(id) {
-
-    const car =
-        cars.find(c => c.id === id);
-
+    const car = cars.find(c => c.id === id);
     if (!car) return;
 
-
-    const confirmDelete =
-        confirm(
-            "هل أنت متأكد من حذف السيارة وجميع سجلات صيانتها؟"
-        );
-
-
+    const confirmDelete = confirm("هل أنت متأكد من حذف السيارة وجميع سجلات صيانتها؟");
     if (!confirmDelete) return;
 
-
-    cars =
-        cars.filter(c => c.id !== id);
-
-
+    cars = cars.filter(c => c.id !== id);
     saveData();
-
     displayCars();
-
 }
-
-
-/* =========================
-   إضافة صيانة
-========================= */
 
 function openServiceModal(id) {
-
     selectedCarId = id;
-
-    document.getElementById("serviceDate")
-        .value = new Date()
-        .toISOString()
-        .split("T")[0];
-
-    document.getElementById("serviceKm")
-        .value = "";
-
-    document.getElementById("serviceDetails")
-        .value = "";
-
-    document.getElementById("serviceModal")
-        .style.display = "block";
-
+    document.getElementById("serviceDate").value = new Date().toISOString().split("T")[0];
+    document.getElementById("serviceKm").value = "";
+    document.getElementById("serviceDetails").value = "";
+    document.getElementById("serviceModal").style.display = "block";
 }
-
-
-/* =========================
-   حفظ الصيانة
-========================= */
 
 function saveService() {
-
-    const date =
-        document.getElementById("serviceDate")
-        .value;
-
-    const km =
-        document.getElementById("serviceKm")
-        .value;
-
-    const details =
-        document.getElementById("serviceDetails")
-        .value.trim();
-
+    const date = document.getElementById("serviceDate").value;
+    const km = document.getElementById("serviceKm").value;
+    const details = document.getElementById("serviceDetails").value.trim();
 
     if (!date || !km || !details) {
-
         alert("يرجى إدخال التاريخ والممشى وما تم إصلاحه.");
-
         return;
     }
 
-
-    const car =
-        cars.find(c =>
-            c.id === selectedCarId
-        );
-
-
+    const car = cars.find(c => c.id === selectedCarId);
     if (!car) return;
-
 
     if (!car.services) {
-
         car.services = [];
-
     }
 
-
     car.services.push({
-
         id: Date.now(),
-
         date: date,
-
         km: km,
-
         details: details
-
     });
 
-
     saveData();
-
     closeServiceModal();
-
     displayCars();
-
 }
 
-
-/* =========================
-   سجل الصيانة
-========================= */
-
 function viewHistory(id) {
-
-    const car =
-        cars.find(c => c.id === id);
-
+    const car = cars.find(c => c.id === id);
     if (!car) return;
 
-
     if (!car.services || car.services.length === 0) {
-
         alert("لا توجد صيانة مسجلة لهذه السيارة.");
-
         return;
     }
 
+    const services = [...car.services].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+    );
 
-    const services =
-        [...car.services].sort(
-            (a,b) =>
-            new Date(b.date) -
-            new Date(a.date)
-        );
-
-
-    let history =
-        "🚗 " + car.name +
-        "\n👤 " + car.owner +
-        "\n\n";
-
+    let history = "🚗 " + car.name + "\n👤 " + car.owner + "\n\n";
     history += "===== سجل الصيانة =====\n\n";
 
-
     services.forEach((service, index) => {
-
-        history +=
-            (index + 1) +
-            ". " +
-            formatDate(service.date) +
-            "\n";
-
-        history +=
-            "الممشى: " +
-            Number(service.km).toLocaleString() +
-            " كم\n";
-
-        history +=
-            "الإصلاح: " +
-            service.details +
-            "\n\n";
-
+        history += (index + 1) + ". " + formatDate(service.date) + "\n";
+        history += "الممشى: " + Number(service.km).toLocaleString() + " كم\n";
+        history += "الإصلاح: " + service.details + "\n\n";
     });
 
-
     alert(history);
-
 }
-
-
-/* =========================
-   إغلاق النوافذ
-========================= */
 
 function closeCarModal() {
-
-    document.getElementById("carModal")
-        .style.display = "none";
-
+    document.getElementById("carModal").style.display = "none";
 }
-
 
 function closeServiceModal() {
-
-    document.getElementById("serviceModal")
-        .style.display = "none";
-
+    document.getElementById("serviceModal").style.display = "none";
 }
 
-
-/* =========================
-   التاريخ
-========================= */
-
 function formatDate(date) {
-
-    const parts =
-        date.split("-");
-
+    const parts = date.split("-");
     if (parts.length !== 3) {
         return date;
     }
-
-    return (
-        parts[2] +
-        "/" +
-        parts[1] +
-        "/" +
-        parts[0]
-    );
-
+    return parts[2] + "/" + parts[1] + "/" + parts[0];
 }
-
-
-/* =========================
-   حماية النصوص
-========================= */
 
 function escapeHTML(text) {
-
-    const div =
-        document.createElement("div");
-
+    const div = document.createElement("div");
     div.textContent = text;
-
     return div.innerHTML;
-
 }
 
-
-/* =========================
-   البداية
-========================= */
-
 displayCars();
-
 </script>
 
 </body>
-  </html>
+</html>
+
